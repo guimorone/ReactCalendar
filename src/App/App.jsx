@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { CalendarHeader } from '../CalendarHeader';
 import { Day } from '../Day';
-import { NewEventModal } from '../NewEventModal';
-import { DeleteEventModal } from '../DeleteEventModal';
+import { EventModal } from '../EventModal';
 import { useDate } from '../hooks/useDate';
 
 export const App = () => {
   const [nav, setNav] = useState(0);
   const [clicked, setClicked] = useState();
   const [events, setEvents] = useState(
-    localStorage.getItem('events') ? 
-      JSON.parse(localStorage.getItem('events')) : 
-      []
+    localStorage.getItem('events') ? JSON.parse(localStorage.getItem('events')) : []
   );
 
-  const eventForDate = date => events.find(e => e.date === date);
+  const eventsForDate = date => events.filter(e => e.date === date);
 
   useEffect(() => {
     localStorage.setItem('events', JSON.stringify(events));
@@ -22,14 +19,10 @@ export const App = () => {
 
   const { days, dateDisplay } = useDate(events, nav);
 
-  return(
+  return (
     <>
       <div id="container">
-        <CalendarHeader 
-          dateDisplay={dateDisplay}
-          onNext={() => setNav(nav + 1)}
-          onBack={() => setNav(nav - 1)}
-        />
+        <CalendarHeader dateDisplay={dateDisplay} onNext={() => setNav(nav + 1)} onBack={() => setNav(nav - 1)} />
 
         <div id="weekdays">
           <div>Sunday</div>
@@ -47,37 +40,20 @@ export const App = () => {
               key={index}
               day={d}
               onClick={() => {
-                if (d.value !== 'padding') {
-                  setClicked(d.date);
-                }
+                if (d.value !== 'padding') setClicked(d.date);
               }}
             />
           ))}
         </div>
       </div>
-
-      {
-        clicked && !eventForDate(clicked) &&
-        <NewEventModal
+      {clicked && (
+        <EventModal
+          events={eventsForDate(clicked)}
           onClose={() => setClicked(null)}
-          onSave={title => {
-            setEvents([ ...events, { title, date: clicked }]);
-            setClicked(null);
-          }}
+          onSave={title => setEvents([...events, { title, date: clicked }])}
+          onDelete={title => setEvents(events.filter(e => e.title !== title))}
         />
-      }
-
-      {
-        clicked && eventForDate(clicked) &&
-        <DeleteEventModal 
-          eventText={eventForDate(clicked).title}
-          onClose={() => setClicked(null)}
-          onDelete={() => {
-            setEvents(events.filter(e => e.date !== clicked));
-            setClicked(null);
-          }}
-        />
-      }
+      )}
     </>
   );
 };

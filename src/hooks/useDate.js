@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export const useDate = (events, nav) => {
   const [dateDisplay, setDateDisplay] = useState('');
   const [days, setDays] = useState([]);
 
-  const eventForDate = date => events.find(e => e.date === date);
+  const eventsForDate = date => events.filter(e => e.date === date);
 
   useEffect(() => {
     const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const dt = new Date();
 
-    if (nav !== 0) {
+    if (nav !== 0) 
       dt.setMonth(new Date().getMonth() + nav);
-    }
+    
 
     const day = dt.getDate();
     const month = dt.getMonth();
@@ -38,14 +38,14 @@ export const useDate = (events, nav) => {
       if (i > paddingDays) {
         daysArr.push({
           value: i - paddingDays,
-          event: eventForDate(dayString),
+          events: eventsForDate(dayString),
           isCurrentDay: i - paddingDays === day && nav === 0,
           date: dayString,
         });
       } else {
         daysArr.push({
           value: 'padding',
-          event: null,
+          events: null,
           isCurrentDay: false,
           date: '',
         });
